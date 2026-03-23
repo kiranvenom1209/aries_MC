@@ -1,0 +1,251 @@
+/* ── Local fonts (offline-safe) ── */
+@font-face {
+  font-family: 'Kumbh Sans';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/KumbhSans-300.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Kumbh Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/KumbhSans-400.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Kumbh Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/KumbhSans-500.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Kumbh Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/KumbhSans-600.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Kumbh Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/KumbhSans-700.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/SpaceMono-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Space Mono';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/SpaceMono-Italic.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/SpaceMono-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'DSEG7';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/DSEG7Classic-Bold.woff2') format('woff2');
+}
+
+@import "tailwindcss";
+
+@theme {
+  --color-primary-color: var(--primary-color);
+  --color-secondary-color: #00f2ff;
+}
+
+:root {
+  --primary-color: #fe9c3d; /* CAD viewer orange */
+  --primary-color-rgb: 254, 156, 61;
+  --bg-color: #000000;
+  --panel-bg: rgba(8, 8, 8, 0.85);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --text-color: #e2e8f0;
+}
+
+body {
+  background: #000000;
+  background-image:
+    linear-gradient(rgba(254,156,61,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(254,156,61,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+  color: var(--text-color);
+  font-family: "Kumbh Sans", system-ui, -apple-system, sans-serif;
+  overflow: hidden; /* Mission control is a fixed dashboard */
+}
+
+/* Base custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.1); 
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color); 
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color); 
+}
+
+/* Dynamic glow effect */
+.glow-border {
+  border: 1px solid var(--border-color);
+  box-shadow: 0 0 10px rgba(254, 156, 61, 0.1);
+  /* Only transition the properties that actually change — avoids checking every prop on every 100ms tick */
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.glow-border:hover {
+  box-shadow: 0 0 15px rgba(254, 156, 61, 0.3);
+  border-color: rgba(254, 156, 61, 0.6);
+}
+
+.glass-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 4px 24px rgba(0, 0, 0, 0.4);
+  /* Isolate layout/style so 100ms re-renders don't cascade outside the panel */
+  contain: layout style;
+}
+
+/* Gradient accent line on panel headers */
+.panel-header-accent {
+  position: relative;
+}
+.panel-header-accent::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(254,156,61,0.4), transparent);
+  pointer-events: none;
+}
+
+/* GPU-accelerated scanline: a transform-translated stripe instead of background-position repaint */
+@keyframes scanLocal {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.animate-scanline {
+  /* Static CRT texture — no per-frame repaint cost */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(254, 156, 61, 0.04) 3px,
+    rgba(254, 156, 61, 0.04) 4px
+  );
+  background-size: 100% 4px;
+}
+
+/* Single fast sweep used inside camera feeds */
+.animate-scanLocal {
+  animation: scanLocal 3s linear infinite;
+  will-change: transform;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes scanDown {
+  0%   { transform: translateY(-4px); opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+@keyframes flicker {
+  0%, 89%, 91%, 93%, 100% { opacity: 1; }
+  90%  { opacity: 0.4; }
+  92%  { opacity: 0.8; }
+}
+
+@keyframes marchingDash {
+  to { stroke-dashoffset: -20; }
+}
+
+.animate-fadeIn    { animation: fadeIn    0.8s ease-out forwards; }
+.animate-fadeInUp  { animation: fadeInUp  0.6s ease-out forwards; }
+/* Infinite animations get will-change so the browser pre-promotes them to GPU layers */
+.animate-flicker   { animation: flicker   10s ease-in-out infinite; will-change: opacity; }
+.animate-scanDown  { animation: scanDown  12s linear infinite;       will-change: transform, opacity; }
+
+@keyframes noiseJitter {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(-2%, -2%); }
+  20% { transform: translate(-4%, 2%); }
+  30% { transform: translate(2%, -4%); }
+  40% { transform: translate(-2%, 6%); }
+  50% { transform: translate(-4%, 2%); }
+  60% { transform: translate(6%, 0); }
+  70% { transform: translate(0, 4%); }
+  80% { transform: translate(-6%, 0); }
+  90% { transform: translate(4%, 2%); }
+  100% { transform: translate(2%, 0); }
+}
+
+@keyframes drillPan {
+  0% { background-position: 48% 48%; }
+  100% { background-position: 52% 52%; }
+}
+
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(254, 156, 61, 0.2); }
+  50% { box-shadow: 0 0 40px rgba(254, 156, 61, 0.5); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2.5s infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* 
+  Utility to prevent clipping of premium glow/shadow effects. 
+  Use on containers that house glass-panels or glowing buttons.
+*/
+.allow-glow {
+  overflow: visible !important;
+  padding: 1rem;
+  margin: -1rem;
+}

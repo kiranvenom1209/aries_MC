@@ -1,0 +1,40 @@
+# ─── Aries Mission Control — Netlify Config ───
+
+[build]
+  command   = "npm run build"
+  publish   = "dist"
+
+# SPA: send every path to index.html so React Router / client-side routing works
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
+
+# ─── Headers ───
+# The dashboard connects to rosbridge_server via WebSocket (ws:// or wss://).
+# Browsers on HTTPS pages block plain ws:// ("mixed content").
+# These headers loosen the policy just enough to allow that connection.
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Allow WebSocket upgrade requests to any origin (rover IP will vary)
+    # connect-src * allows the browser to open WebSocket to any ws:// / wss:// host
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.tile.openstreetmap.org; font-src 'self' data:; connect-src 'self' ws: wss: http: https:; frame-src 'none'; object-src 'none';"
+    X-Frame-Options          = "SAMEORIGIN"
+    X-Content-Type-Options   = "nosniff"
+    Referrer-Policy          = "strict-origin-when-cross-origin"
+    Permissions-Policy       = "camera=(), microphone=(), geolocation=()"
+
+# Long-cache static assets (Vite hashes filenames)
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Don't cache index.html so deploys take effect immediately
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
