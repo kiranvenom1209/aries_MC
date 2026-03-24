@@ -12,7 +12,6 @@ const TRAIL_MAX = 200;
 const GRID_COLOR = 'rgba(254,156,61,0.08)';
 const AXIS_COLOR = 'rgba(254,156,61,0.25)';
 const TRAIL_COLOR = 'rgba(254,156,61,0.45)';
-const FULL_TRAIL_COLOR = 'rgba(254,156,61,0.15)';
 const DOT_COLOR = '#fe9c3d';
 
 import { usePlayback } from '../../context/PlaybackContext';
@@ -29,6 +28,7 @@ const MapView: React.FC = () => {
   const bgImageRef = useRef<HTMLImageElement | null>(null);
   const trackingRef = useRef(true); // auto-center on rover
   const [showTrackBtn, setShowTrackBtn] = useState(false);
+  const [operationMarkers, setOperationMarkers] = useState<{ x: number, y: number, type: 'drill' | 'arm' }[]>([]);
 
   // Preload background image
   useEffect(() => {
@@ -37,13 +37,55 @@ const MapView: React.FC = () => {
     img.onload = () => { bgImageRef.current = img; };
   }, []);
 
-  const { playbackData } = usePlayback();
+  const { playbackData, currentIndex } = usePlayback();
+  const hasPlayback = playbackData.length > 0;
   const playbackDataRef = useRef(playbackData);
+  useEffect(() => { playbackDataRef.current = playbackData; }, [playbackData]);
+
+  // Track operation markers for both Live and Playback
   useEffect(() => {
-    playbackDataRef.current = playbackData;
-    // Clear local trail if we switch mission logs
-    trailRef.current = [];
-  }, [playbackData]);
+    const markers: { x: number, y: number, type: 'drill' | 'arm' }[] = [];
+    let lastDrill = false;
+    let lastArm = false;
+
+    if (hasPlayback) {
+      // In playback mode, scan the entire mission log once
+      playbackData.forEach(d => {
+        const sD = d.drill?.status?.toLowerCase() || 'idle';
+        const sA = d.arm?.status?.toLowerCase() || 'idle';
+        const isDrilling = sD === 'drilling' || sD === 'retracting' || sD === 'deploying';
+        const isArmMoving = sA === 'moving';
+        
+        if (isDrilling && !lastDrill) markers.push({ x: d.location.x, y: d.location.y, type: 'drill' });
+        if (isArmMoving && !lastArm)   markers.push({ x: d.location.x, y: d.location.y, type: 'arm'   });
+        
+        lastDrill = isDrilling;
+        lastArm = isArmMoving;
+      });
+      setOperationMarkers(markers);
+    } else {
+      // In live mode, we accumulate markers as they happen (logic below is a simplification, 
+      // in a real app this would be more stateful but for mock sims we scan the current state)
+      const sD = state.drill?.status?.toLowerCase() || 'idle';
+      const sA = state.arm?.status?.toLowerCase() || 'idle';
+      const isDrilling = sD === 'drilling' || sD === 'retracting' || sD === 'deploying';
+      const isArmMoving = sA === 'moving';
+
+      if (isDrilling || isArmMoving) {
+        setOperationMarkers(prev => {
+          const type = isDrilling ? 'drill' : 'arm';
+          const pos = state.location;
+          // Only add if not already marked at this general location (within 0.5m)
+          const exists = prev.find(m => m.type === type && Math.hypot(m.x - pos.x, m.y - pos.y) < 0.5);
+          if (!exists) return [...prev, { x: pos.x, y: pos.y, type }];
+          return prev;
+        });
+      }
+    }
+  }, [playbackData, state.location.x, state.location.y, state.drill?.status, state.arm?.status, hasPlayback]);
+
+  const currentIndexRef = useRef(currentIndex);
+  useEffect(() => { currentIndexRef.current = currentIndex; }, [currentIndex]);
 
   // Track trail
   useEffect(() => {
@@ -83,7 +125,10 @@ const MapView: React.FC = () => {
 
     // Auto-track: keep rover centered every frame
     if (trackingRef.current) {
-      offsetRef.current = { x: -(x * scale), y: -(y * scale) };
+      // In playback mode, center on the playback position, otherwise live position
+      const trackX = playbackDataRef.current.length > 0 ? playbackDataRef.current[currentIndexRef.current]?.location.x ?? x : x;
+      const trackY = playbackDataRef.current.length > 0 ? playbackDataRef.current[currentIndexRef.current]?.location.y ?? y : y;
+      offsetRef.current = { x: -(trackX * scale), y: -(trackY * scale) };
     }
     const off = offsetRef.current;
 
@@ -139,15 +184,60 @@ const MapView: React.FC = () => {
     // Full Mission Trajectory (if in playback mode)
     const fullPath = playbackDataRef.current;
     if (fullPath.length > 1) {
-      ctx.strokeStyle = FULL_TRAIL_COLOR;
-      ctx.lineWidth = 1;
+      const idx = currentIndexRef.current;
+      // 1. Draw Entire Mission Baseline (Thick White)
+      ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+      ctx.lineWidth = 3.5;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(toCanvasX(fullPath[0].location.x), toCanvasY(fullPath[0].location.y));
       for (let i = 1; i < fullPath.length; i++) {
         ctx.lineTo(toCanvasX(fullPath[i].location.x), toCanvasY(fullPath[i].location.y));
       }
       ctx.stroke();
+
+      // 2. Draw "Traveled" Progress (Thick Orange) - Grows as the timeline scrubbs
+      ctx.strokeStyle = DOT_COLOR;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(toCanvasX(fullPath[0].location.x), toCanvasY(fullPath[0].location.y));
+      for (let i = 1; i <= idx; i++) {
+        ctx.lineTo(toCanvasX(fullPath[i].location.x), toCanvasY(fullPath[i].location.y));
+      }
+      ctx.stroke();
+      
+      // Add start marker (Green)
+      ctx.fillStyle = '#4ade80'; 
+      ctx.beginPath();
+      ctx.arc(toCanvasX(fullPath[0].location.x), toCanvasY(fullPath[0].location.y), 4, 0, Math.PI * 2);
+      ctx.fill();
     }
+
+    // Draw Mission Operation Markers (Milestones)
+    operationMarkers.forEach(m => {
+      const mx = toCanvasX(m.x);
+      const my = toCanvasY(m.y);
+      const color = m.type === 'drill' ? '#22d3ee' : '#a855f7';
+      
+      // Target Ring
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(mx, my, 8, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      // Center Dot
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(mx, my, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Label (adaptive)
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.font = 'bold 8px monospace';
+      ctx.fillText(m.type.toUpperCase(), mx + 12, my + 3);
+    });
 
     // Recent Trail (local)
     const trail = trailRef.current;
@@ -185,7 +275,7 @@ const MapView: React.FC = () => {
     ctx.fillStyle = 'rgba(255,255,255,0.35)';
     ctx.font = '10px monospace';
     ctx.fillText(`${gridStep} m/div`, 8, H - 8);
-  }, []); // stable — reads everything from refs
+  }, [operationMarkers]); // stable — reads everything from refs or state deps
 
   // Resize observer + animation frame (runs once, never restarts)
   const drawRef = useRef(draw);
@@ -265,7 +355,7 @@ const MapView: React.FC = () => {
       <div className="px-5 py-3 border-b border-border-color/30 shadow-sm flex justify-between items-center bg-black/40 shrink-0 relative z-10">
         <div className="flex items-center gap-2">
           <Crosshair size={14} className="text-primary-color" />
-          <span className="text-[11px] uppercase text-primary-color font-bold tracking-[0.15em]">
+          <span className="text-[10px] uppercase text-primary-color font-bold tracking-[0.15em]">
             Nav. Systems / Localization
           </span>
         </div>

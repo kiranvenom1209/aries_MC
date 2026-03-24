@@ -10,12 +10,12 @@ const TelemetryReadout: React.FC = () => {
   // batteryCells accessed via state.batteryCells in the JSX below
 
   return (
-    <div className="glass-panel rounded-2xl flex flex-col relative glow-border bg-black/50 overflow-hidden">
+    <div className="glass-panel rounded-xl flex flex-col relative glow-border bg-black/50 overflow-hidden">
       {/* sim-panel like header */}
-      <div className="px-5 py-3 border-b border-border-color/30 shadow-sm flex justify-between items-center bg-black/60 shrink-0">
+      <div className="px-5 py-3 border-b border-border-color/30 shadow-sm flex justify-between items-center bg-black/40 shrink-0">
         <div className="flex items-center gap-2">
-            <Activity size={16} className="text-primary-color" />
-            <span className="text-[12px] uppercase text-primary-color font-bold tracking-[0.2em]">
+            <Activity size={14} className="text-primary-color" />
+            <span className="text-[10px] uppercase text-primary-color font-bold tracking-[0.15em]">
             System Diagnostics
             </span>
         </div>

@@ -14,8 +14,9 @@ import DrillOpsPage from './pages/DrillOpsPage';
 import ArmOpsPage from './pages/ArmOpsPage';
 import ScienceOpsPage from './pages/ScienceOpsPage';
 import DataAnalyserPage from './pages/DataAnalyserPage';
+import ArmCalibrationPage from './pages/ArmCalibrationPage';
 
-type PageKey = 'mission' | 'drive' | 'cameras' | 'electrical' | 'telemetry' | 'drill' | 'arm' | 'science' | 'analyser';
+type PageKey = 'mission' | 'drive' | 'cameras' | 'electrical' | 'telemetry' | 'drill' | 'arm' | 'science' | 'analyser' | 'calib';
 
 const AUTH_STORAGE_KEY = 'aries_mc_authenticated';
 
@@ -34,6 +35,7 @@ const NAV_ITEMS: Array<{
   { key: 'arm', label: 'Robotic Arm', description: 'Manipulator camera suite and arm pose controls.', icon: Bot },
   { key: 'science', label: 'Science Ops', description: 'Peristaltic pump, microscope, and Raman spectrometer analysis.', icon: Activity },
   { key: 'analyser', label: 'Data Analyser', description: 'Post-mission CSV log analysis, playback, and trajectory review.', icon: Clock },
+  { key: 'calib', label: 'Arm Studio', description: 'Advanced 6-DOF kinematics calibration and assembly suite.', icon: Wrench },
 ];
 
 const getPageFromHash = (hash: string): PageKey => {
@@ -506,6 +508,8 @@ const DashboardShell: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         return <ScienceOpsPage />;
       case 'analyser':
         return <DataAnalyserPage />;
+      case 'calib':
+        return <ArmCalibrationPage />;
       case 'mission':
       default:
         return <MissionControlPage />;

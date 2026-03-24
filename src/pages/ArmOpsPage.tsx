@@ -1,7 +1,7 @@
 import React from 'react';
 import { useROS } from '../context/ROSContext';
 import CameraGrid from '../components/media/CameraGrid';
-import ArmStatus from '../components/telemetry/ArmStatus';
+import ArmStatus3D from '../components/telemetry/ArmStatus3D';
 import ArmControls from '../components/operations/ArmControls';
 
 const ArmOpsPage: React.FC = () => {
@@ -28,7 +28,7 @@ const ArmOpsPage: React.FC = () => {
         <div className="flex-1 min-h-0 grid grid-cols-1 xl:grid-cols-[1.1fr_0.9fr] gap-4 overflow-y-auto custom-scrollbar">
           <div className="min-h-0 flex flex-col gap-4">
             <div className="shrink-0 h-[560px]"><CameraGrid feeds={armFeeds.length ? armFeeds : state.cameras} title="Manipulator Visual Suite" /></div>
-            <div className="shrink-0"><ArmStatus /></div>
+            <div className="shrink-0"><ArmStatus3D /></div>
           </div>
           <div className="min-h-0">
             <div className="shrink-0"><ArmControls /></div>

@@ -47,7 +47,7 @@ const MissionChecklistModal: React.FC<MissionChecklistModalProps> = ({ isOpen, o
       name: 'Communications', 
       label: 'Uplink & Signal Stability', 
       icon: Radio, 
-      isReady: connectionStatus === 'connected' && (state.network?.signalStrength ?? -100) > -75,
+      isReady: (connectionStatus === 'connected' || state.telemetry.connectionStatus === 'connected') && (state.network?.signalStrength ?? -100) > -80,
       value: `${(state.network?.signalStrength ?? -100).toFixed(0)} dBm`
     },
     { 

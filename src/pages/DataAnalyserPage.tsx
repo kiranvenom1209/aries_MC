@@ -3,7 +3,7 @@ import { usePlayback } from '../context/PlaybackContext';
 import { 
   FileUp, Play, Pause, FastForward, Rewind, 
   Map as MapIcon, LayoutDashboard, Clock, Activity,
-  Download, Trash2, Shield, Navigation2, Radio, Beaker, CheckCircle2, X
+  Download, Trash2, Shield, Navigation2, Radio, Beaker, CheckCircle2, X, Box
 } from 'lucide-react';
 import TelemetryReadout from '../components/telemetry/TelemetryReadout';
 import AttitudeCombined from '../components/telemetry/AttitudeCombined';
@@ -17,6 +17,7 @@ import OrientationCompact from '../components/telemetry/OrientationCompact';
 import EnvironmentSensors from '../components/telemetry/EnvironmentSensors';
 import MapView from '../components/media/MapView';
 import ChanceOfLifeCard from '../components/telemetry/ChanceOfLifeCard';
+import ArmVisualizer3D from '../components/telemetry/ArmVisualizer3D';
 
 const DataAnalyserPage: React.FC = () => {
   const { 
@@ -408,6 +409,16 @@ const DataAnalyserPage: React.FC = () => {
                 </div>
 
                 <div className="h-fit"><AttitudeCombined layout="wide" /></div>
+                
+                {/* 3D Arm Visualizer - Playback Mode */}
+                <div className="glass-panel rounded-xl border border-white/10 bg-black/60 overflow-hidden min-h-[300px] relative">
+                  <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
+                    <Box size={14} className="text-primary-color" />
+                    <span className="text-[10px] font-bold font-mono uppercase tracking-widest text-primary-color">Arm Kinematics 3D</span>
+                  </div>
+                  <ArmVisualizer3D playbackArm={currentData?.arm} compact />
+                </div>
+
                 <div className="h-fit"><ArmStatus /></div>
                 <div className="h-fit"><DrillStatus /></div>
               </div>

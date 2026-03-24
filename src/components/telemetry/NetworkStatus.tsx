@@ -11,9 +11,9 @@ const NetworkStatus: React.FC = () => {
   return (
     <div className="glass-panel rounded-xl flex flex-col relative overflow-hidden glow-border">
       {/* sim-panel like header */}
-      <div className="px-3 py-2 border-b border-border-color/30 shadow-sm flex justify-between items-center bg-black/40 shrink-0">
+      <div className="px-5 py-3 border-b border-border-color/30 shadow-sm flex justify-between items-center bg-black/40 shrink-0">
         <div className="flex items-center gap-1.5">
-            <Wifi size={12} className="text-primary-color" />
+            <Wifi size={14} className="text-primary-color" />
             <span className="text-[10px] uppercase text-primary-color font-bold tracking-[0.15em]">
             Comms / Ubiquiti Omni
             </span>

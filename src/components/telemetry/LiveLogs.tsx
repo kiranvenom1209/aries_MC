@@ -72,7 +72,7 @@ const LiveLogs: React.FC<LiveLogsProps> = ({ maxEntries, scrollable = true }) =>
       <div className="px-5 py-3 border-b border-border-color/30 shadow-sm flex justify-between items-center bg-black/40 shrink-0">
         <div className="flex items-center gap-2">
             <Terminal size={14} className="text-primary-color" />
-            <span className="text-[11px] uppercase text-primary-color font-bold tracking-[0.15em]">
+            <span className="text-[10px] uppercase text-primary-color font-bold tracking-[0.15em]">
             System Terminal / Live Logs
             </span>
         </div>

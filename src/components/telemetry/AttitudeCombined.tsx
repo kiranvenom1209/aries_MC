@@ -221,7 +221,7 @@ const AttitudeCombined: React.FC<AttitudeCombinedProps> = ({ layout = 'default' 
       <div className="px-5 py-3 border-b border-border-color/30 shadow-sm flex justify-between items-center bg-black/40 shrink-0 z-20">
         <div className="flex items-center gap-2">
           <Navigation size={14} className="text-primary-color" />
-          <span className="text-[11px] uppercase text-primary-color font-bold tracking-[0.15em] drop-shadow-[0_0_5px_rgba(254,156,61,0.5)]">
+          <span className="text-[10px] uppercase text-primary-color font-bold tracking-[0.15em] drop-shadow-[0_0_5px_rgba(254,156,61,0.5)]">
             Primary Rover Telemetry
           </span>
         </div>

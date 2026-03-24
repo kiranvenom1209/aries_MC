@@ -1,0 +1,11 @@
+﻿"Symbol";"Value";"Unit";
+"TraceParts.PartNumber";"30-29092025-096420";"";
+"REFERENCE";"REBEL-6DOF-01";"";
+"TraceParts.PartTitle";"ReBeL® Cobot 6 DOF";"";
+"TraceParts.InstanceId";"30-29092025-096420D7LT1A16OMC8CNW75W95GNBNT";"";
+"SELECTION";"REBEL-6DOF-01";"";
+"SUPPLIER";"igus GmbH";"";
+"DESIGN";"robolink®, REBEL-6DOF-01";"";
+"TRACEPARTS";"TRACEPARTS";"";
+"TraceParts.PartLanguage";"en";"";
+"TraceParts.PartVersion";"1.0.2";"";
