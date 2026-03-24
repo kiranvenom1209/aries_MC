@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { useTelemetryState } from '../../context/TelemetryContext';
 import { STOW_PRESETS, setStowPreset, updateJointAngle } from '../../utils/mockTelemetry';
 import { Settings, Check, Sliders, Box } from 'lucide-react';
